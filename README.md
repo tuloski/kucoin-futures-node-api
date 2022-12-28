@@ -611,47 +611,36 @@ apiLive.getFundingHistory(params)
 
 ## Websockets
 
-The websocket component of the API wrapper is utilized by initializing websockets based on topics that match Kucoin endpoints. These include:
+Revamped websocket w.r.t. original. Websocket is a separate class now with events emitter. It handles multiple topics per connection and automatic reconnection.
+The topics have the same names as in the API documentation. And the events emitter per topic are the same. All the data returned have the symbol added to data emitted.
 
-- 'ticker'
-- 'tickerv2'
-- 'orderbook'
-- 'execution'
-- 'fullMatch'
-- 'depth5'
-- 'depth50' 
-- 'market'
-- 'announcement'
-- 'snapshot'
-- 'ordersMarket' (private)
-- 'orders' (private)
-- 'advancedOrders' (private)
-- 'balances' (private)
-- 'position' (private)
-
-
-To initialize a websocket, provide the paramaters and an event handler. A simple example is as follows:
+A simple example is as follows:
 
 ```javascript
-// Parameters 
-params = {
-  topic: enum (see above)
-  symbols: array (ignored if not required by the endpoint, single array element if single, multiple if desired)
+//For a private channels ws you need to create a ws instance with keys in the below params.
+//Possible to create as many ws instances as needed.
+const config_ws = {
+    //apiKey: 'xXXXXXXXXXXXXXXXXXXXXxxxxxxxxxxxxxxxxxxxxxXXX',  //USE keys for private channels ws
+    //secretKey: 'xxxxxxxxXXXXXXXXXXXXXxxXXXXXXXXXXXXXxxxXXX',
+    //passphrase: 'xxxxxx'
 }
 
-// Public streaming websocket for the orderbook of the provide symbol(s)
-apiLive.initSocket({topic: "orderbook", symbols: ['KCS-BTC']}, (msg) => {
-  let data = JSON.parse(msg)
-  console.log(data)
-})
+const ws_kucoin = new kucoin_websocket(config_ws);
 
-// Private streaming websocket for account balances
-apiLive.initSocket({topic: "balances"}, (msg) => {
-  let data = JSON.parse(msg)
-  console.log(data)
-})
+ws_kucoin.on('execution', (data) => {
+    console.log("Got message execution: " + JSON.stringify(data));
+});
+ws_kucoin.on('instrument', (data) => {
+    console.log("Got message instrument: " + JSON.stringify(data));
+});
+ws_kucoin.on('ack', (data) => {
+    console.log("Got message ack: " + JSON.stringify(data));
+});
+ws_kucoin.on('open', async () => {
+    //Can subscribe to up to 300 topics
+    ws_kucoin.subscribe("execution", 'XBTUSDTM');
+    ws_kucoin.subscribe("instrument", 'XBTUSDTM');
+});
 ```
-
-The event handler can be programmed to manipulate/store the returned websocket stream data as desired.
 
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC) ![Language: Javascript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) ![Framework: Node.JS](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node-dot-js&logoColor=white)
