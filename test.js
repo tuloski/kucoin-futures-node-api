@@ -9,7 +9,7 @@ const config = {
 }
 
 const config_ws = {
-    //apiKey: 'xXXXXXXXXXXXXXXXXXXXXxxxxxxxxxxxxxxxxxxxxxXXX',
+    //apiKey: 'xXXXXXXXXXXXXXXXXXXXXxxxxxxxxxxxxxxxxxxxxxXXX',  //USE keys for private channels ws
     //secretKey: 'xxxxxxxxXXXXXXXXXXXXXxxXXXXXXXXXXXXXxxxXXX',
     //passphrase: 'xxxxxx'
 }
@@ -17,25 +17,18 @@ const config_ws = {
 const api_kucoin = new kucoin_futures_api();
 api_kucoin.init(config);
 
-
-
-//OLD
-
-/*api_kucoin.initSocket({topic: "execution", symbols: ['XBTUSDTM']}, (msg) => {
-    let data = JSON.parse(msg);
-    //console.log(data);
-    console.log("Got data execution.");
-});
-api_kucoin.initSocket({topic: "market", symbols: ['XBTUSDTM']}, (msg) => {
-    let data = JSON.parse(msg);
-    //console.log(data);
-    console.log("Got data market.");
-});*/
-
-//NEW
 const ws_kucoin = new kucoin_websocket(config_ws);
-ws_kucoin.on('open', async () => {
-    ws_kucoin.subscribe("execution", 'XBTUSDM');
-    ws_kucoin.subscribe("instrument", 'XBTUSDM');
-});
 
+ws_kucoin.on('execution', (data) => {
+    console.log("Got message execution: " + JSON.stringify(data));
+});
+ws_kucoin.on('instrument', (data) => {
+    console.log("Got message instrument: " + JSON.stringify(data));
+});
+//ws_kucoin.on('ack', (data) => {
+//    console.log("Got message ack: " + JSON.stringify(data));
+//});
+ws_kucoin.on('open', async () => {
+    ws_kucoin.subscribe("execution", 'XBTUSDTM');
+    ws_kucoin.subscribe("instrument", 'XBTUSDTM');
+});
