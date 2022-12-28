@@ -1,6 +1,6 @@
 "use strict";
 
-const Websocket = require("./lib/websocket.js");
+const Websocket = require("./lib/websockets.js");
 const Kucoin = require("./lib/kucoin.js");
 
 module.exports = {
